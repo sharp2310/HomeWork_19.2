@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 def home(request):
 
-    return render(request, 'catalog/home.html')
+    return render(request, 'home.html')
 
 
 def contacts(request):
@@ -12,4 +12,4 @@ def contacts(request):
         email = request.POST.get('email')
         message = request.POST.get('message')
         print(f"{name} {email}: {message}")
-    return render(request, 'catalog/contacts.html')
+    return render(request, 'contacts.html')
