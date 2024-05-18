@@ -11,4 +11,4 @@ def my_media(data):
     if data:
         return f'/media/{data}'
     else:
-        return 'ошибка
+        return 'ошибка'
