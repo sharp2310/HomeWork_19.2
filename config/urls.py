@@ -1,6 +1,6 @@
 from django.urls import include
 
-from catalog.views import home, contacts
+from catalog.views import home, contact
 
 """
 URL configuration for config project.
@@ -25,5 +25,5 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('catalog.urls')),
+    path('', include('catalog.urls', namespace='catalog')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -8,7 +8,7 @@ class ArticlesForm(ModelForm):
         fields = [
             'name',
             'description',
-            'image',
+            'img',
             'category',
-            'price',
+            'price_per_purchase',
         ]
