@@ -1,107 +1,56 @@
 from django.shortcuts import render
+from catalog.models import Product, Version
+from django.views.generic import (
+    CreateView, ListView,  DetailView, UpdateView, DeleteView)
+from catalog.forms import ProductForm
 from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView
 from pytils.translit import slugify
 
-from catalog.models import Product, Category, Blog
 
+def home(request):
+    return render(request, 'catalog/home.html')
 
-class CategoryListView(ListView):
-    model = Category
-    extra_context = {
-        'title': 'Доступные категории товаров'
-    }
+def contacts(request):
+    return render(request, 'catalog/contacts.html')
 
-
-class ContactPageView(TemplateView):
-    template_name = "catalog/contacts.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.method == "POST":
-            name = request.POST.get('name')
-            phone = request.POST.get('phone')
-            message = request.POST.get('message')
-
-            print(f'Имя - {name}\n'
-                  f'Телефон - {phone}\n'
-                  f'Сообщение: {message}')
-        return render(request, 'catalog/contacts.html')
-
-
-class ProductListView(ListView):
+class ProductsCreateView(CreateView):
     model = Product
+    form_class = ProductForm
+    success_url = reverse_lazy('catalog:list')
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = queryset.filter(category_id=self.kwargs.get('pk'))
-        return queryset
-
-    def get_context_data(self, *args, **kwargs):
-        category_item = Category.objects.get(pk=self.kwargs.get('pk'))
-        context_data = super().get_context_data(*args, **kwargs)
-        context_data['title'] = f'Категория: {category_item.name}'
-        return context_data
-
-
-class ProductDetailView(DetailView):
+class ProductsUpdateView(UpdateView):
     model = Product
-    template_name = 'catalog/product_list.html'
-    extra_context = {
-        'title': 'Описание продукта'
-    }
-
-
-class BlogCreateView(CreateView):
-    model = Blog
-    fields = ('name', 'content', 'is_published')
-    success_url = reverse_lazy('catalog:blog_list')
+    form_class = ProductForm
+    # success_url = reverse_lazy('blogs:list')
 
     def form_valid(self, form):
         if form.is_valid():
-            new_blog = form.save()
-            new_blog.slug = slugify(new_blog.name)
-            new_blog.save()
-
-        return super().form_valid(form)
-
-
-class BlogListView(ListView):
-    model = Blog
-
-    def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        queryset = queryset.filter(is_published=True)
-        return queryset
-
-
-class BlogDetailView(DetailView):
-    model = Blog
-
-    def get_object(self, queryset=None):
-        self.object = super().get_object(queryset)
-        self.object.views_count += 1
-        self.object.save()
-        return self.object
-
-
-class BlogUpdateView(UpdateView):
-    model = Blog
-    fields = ('name', 'content', 'is_published')
-
-    # success_url = reverse_lazy('catalog:blog_list')
-
-    def form_valid(self, form):
-        if form.is_valid():
-            new_blog = form.save()
-            new_blog.slug = slugify(new_blog.name)
-            new_blog.save()
+            new_product = form.save()
+            new_product.slug = slugify(new_product.name)
+            new_product.save()
 
         return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('catalog:view', args=[self.kwargs.get('pk')])
 
+class ProductsListView(ListView):
+    model = Product
 
-class BlogDeleteView(DeleteView):
-    model = Blog
-    success_url = reverse_lazy('catalog:blog_list')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # context["version"] = Version.objects.filter(current_version=True).first()
+        for object in context.get('object_list'):
+            version = Version.objects.filter(current_version=True, product_id=object.pk).first()
+            object.version = version
+            print(object.version)
+            # product.version = product.version_set.filter(is_active=True).first()
+        return context
+
+
+class ProductView(DetailView):
+    model = Product
+
+class ProductDeleteView(DeleteView):
+    model = Product
+    success_url = reverse_lazy('catalog:products_list')
