@@ -1,8 +1,20 @@
-<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
-    <h5 class="my-0 mr-md-auto font-weight-normal">Меню</h5>
-    <nav class="ms-5">
-        <a class="p-2 btn btn-outline-primary" href="{% url 'catalog:home' %}">Каталог</a>
-        <a class="p-2 btn btn-outline-primary" href="{% url 'catalog:contacts' %}">Контакты</a>
-        <a class="p-2 btn btn-outline-primary" href="{% url 'catalog:blog_list' %}">Блог</a>
-    </nav>
+{% extends 'catalog/base.html' %}
+{% load my_tags %}
+
+{% block content %}
+<div class="row text-center">
+    {% for object in object_list %}
+    <div class="col-3">
+        <div class="card mb-4 box-shadow">
+            <div class="card-header">
+                <h4 class="my-0 font-weight-normal">{{ object.name }}</h4>
+            </div>
+            <div class="card-body">
+                {{ object.description|truncatechars:30 }}<br>
+                <a href="{% url 'catalog:category_products' object.pk %}" type="button" class="btn btn-lg btn-block btn-outline-primary">Товары</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </div>
+{% endblock %}
