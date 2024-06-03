@@ -1,6 +1,4 @@
-{% extends 'catalog/base.html' %}
 {% load my_tags %}
-
 {% block content %}
 {% if user.is_authenticated %}
 <div class="col-12 mb-5">
@@ -22,7 +20,7 @@
             <img class="card-img-top" src="{{ object.img|my_media }}">
             {{ object.description|truncatechars:10 }}<br>
             {{ object.name_version}}<br>
-            {% if user.is_authenticated %}
+            {% if user == object.owner or perm.object.can_edit_published and perm.object.can_edit_category and perm.object.can_edit_desc %}
             <a href="{% url 'catalog:edit_product' object.pk %}" type="button"
                class="btn btn-sm btn-outline-secondary">Edit</a>
             <a href="{% url 'catalog:delete_product' object.pk %}" type="button"
