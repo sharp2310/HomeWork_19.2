@@ -7,11 +7,16 @@ from django.views.generic import ListView, TemplateView, DetailView, CreateView,
 from pytils.translit import slugify
 from catalog.forms import ProductForm, VersionForm, ProductModeratorForm
 from catalog.models import Product, Category, Blog, Version
+from catalog.services import get_category_from_cache
+
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
     extra_context = {
         'title': 'Доступные категории товаров'
     }
+
+    def get_queryset(self):
+        return get_category_from_cache()
 class ContactPageView(LoginRequiredMixin, TemplateView):
     template_name = "catalog/contacts.html"
     def dispatch(self, request, *args, **kwargs):
